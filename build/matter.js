@@ -1,5 +1,5 @@
 /**
-* matter-js 0.13.0 by @liabru 2017-07-06
+* matter-js 0.13.1 by @liabru 2017-10-29
 * http://brm.io/matter-js/
 * License MIT
 */
@@ -2648,7 +2648,7 @@ var Common = _dereq_('../core/Common');
             collisionStart = pairs.collisionStart,
             collisionEnd = pairs.collisionEnd,
             collisionActive = pairs.collisionActive,
-            activePairIds = [],
+            activePairIds = new Set(),
             collision,
             pairId,
             pair,
@@ -2664,7 +2664,7 @@ var Common = _dereq_('../core/Common');
 
             if (collision.collided) {
                 pairId = Pair.id(collision.bodyA, collision.bodyB);
-                activePairIds.push(pairId);
+                activePairIds.add(pairId);
 
                 pair = pairsTable[pairId];
                 
@@ -2695,7 +2695,7 @@ var Common = _dereq_('../core/Common');
         // deactivate previously active pairs that are now inactive
         for (i = 0; i < pairsList.length; i++) {
             pair = pairsList[i];
-            if (pair.isActive && Common.indexOf(activePairIds, pair.id) === -1) {
+            if (pair.isActive && !activePairIds.has(pair.id)) {
                 Pair.setActive(pair, false, timestamp);
                 collisionEnd.push(pair);
             }
@@ -4388,7 +4388,11 @@ module.exports = Common;
      * @return {boolean} True if the object is a HTMLElement, otherwise false
      */
     Common.isElement = function(obj) {
-        return obj instanceof HTMLElement;
+        try {
+            return obj instanceof HTMLElement;
+        } catch(e) {
+            return false
+        }
     };
 
     /**
@@ -5386,7 +5390,7 @@ var Common = _dereq_('./Common');
      * @readOnly
      * @type {String}
      */
-    Matter.version = '0.13.0';
+    Matter.version = '0.13.1';
 
     /**
      * A list of plugin dependencies to be installed. These are normally set and installed through `Matter.use`.
